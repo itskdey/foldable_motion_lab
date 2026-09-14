@@ -103,31 +103,22 @@ class FoldSimulatorBar extends StatelessWidget {
                     button: true,
                     toggled: autoDevice,
                     label: 'Auto device',
-                    child: Material(
-                      color: autoDevice ? const Color(0xFFC8FF22) : Colors.white10,
-                      borderRadius: BorderRadius.circular(14),
-                      child: InkWell(
-                        onTap: () => onAutoDeviceChanged(!autoDevice),
+                    child: Tooltip(
+                      message: 'Auto device',
+                      child: Material(
+                        color: autoDevice ? const Color(0xFFC8FF22) : Colors.white10,
                         borderRadius: BorderRadius.circular(14),
-                        child: SizedBox(
-                          width: compact ? 44 : 110,
-                          height: 38,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.sync_rounded, color: autoDevice ? Colors.black : Colors.white, size: 17),
-                              if (!compact) ...[
-                                const SizedBox(width: 6),
-                                Text(
-                                  'Auto device',
-                                  style: TextStyle(
-                                    color: autoDevice ? Colors.black : Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ],
-                            ],
+                        child: InkWell(
+                          onTap: () => onAutoDeviceChanged(!autoDevice),
+                          borderRadius: BorderRadius.circular(14),
+                          child: SizedBox(
+                            width: 44,
+                            height: 38,
+                            child: Icon(
+                              Icons.sync_rounded,
+                              color: autoDevice ? Colors.black : Colors.white,
+                              size: 17,
+                            ),
                           ),
                         ),
                       ),
