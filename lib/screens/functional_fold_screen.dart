@@ -59,70 +59,121 @@ class _FunctionalFoldScreenState extends State<FunctionalFoldScreen>
     final device = FoldDeviceInfo.fromMediaQuery(media);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F3EE),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, outer) {
-            motion.initializeForWidth(
-              outer.maxWidth,
-              hasPhysicalFold: device.hasPhysicalFold,
-            );
-
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (!mounted) return;
-              motion.syncToDeviceWidth(
+      body: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFF8F7F2), Color(0xFFF0EEE7)],
+          ),
+        ),
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, outer) {
+              motion.initializeForWidth(
                 outer.maxWidth,
                 hasPhysicalFold: device.hasPhysicalFold,
               );
-            });
 
-            return AnimatedBuilder(
-              animation: Listenable.merge([motion, detail, store]),
-              builder: (context, _) {
-                return Column(
-                  children: [
-                    _Header(
-                      foldProgress: motion.progress,
-                      detailProgress: detail.value,
-                      hasPhysicalFold: device.hasPhysicalFold,
-                      onBack: detail.value > 0.01 ? closeAction : null,
-                    ),
-                    Expanded(
-                      child: LayoutBuilder(
-                        builder: (context, bounds) => _Stage(
-                          width: bounds.maxWidth,
-                          height: bounds.maxHeight,
-                          fold: motion.progress,
-                          detail: detail.value,
-                          hingeWidth: device.hingeWidth,
-                          store: store,
-                          onAction: openAction,
-                          onBack: closeAction,
-                        ),
-                      ),
-                    ),
-                    FoldSimulatorBar(
-                      progress: motion.progress,
-                      autoDevice: motion.autoDevice,
-                      onProgressChanged: motion.setProgress,
-                      onAutoDeviceChanged: (value) {
-                        motion.setAutoDevice(value);
-                        if (value) {
-                          motion.syncToDeviceWidth(
-                            outer.maxWidth,
-                            hasPhysicalFold: device.hasPhysicalFold,
-                          );
-                        }
-                      },
-                      onFold: motion.fold,
-                      onUnfold: motion.unfold,
-                    ),
-                  ],
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                motion.syncToDeviceWidth(
+                  outer.maxWidth,
+                  hasPhysicalFold: device.hasPhysicalFold,
                 );
-              },
-            );
-          },
+              });
+
+              return AnimatedBuilder(
+                animation: Listenable.merge([motion, detail, store]),
+                builder: (context, _) {
+                  return Stack(
+                    children: [
+                      const _AmbientDecoration(),
+                      Column(
+                        children: [
+                          _Header(
+                            foldProgress: motion.progress,
+                            detailProgress: detail.value,
+                            hasPhysicalFold: device.hasPhysicalFold,
+                            onBack: detail.value > 0.01 ? closeAction : null,
+                          ),
+                          Expanded(
+                            child: LayoutBuilder(
+                              builder: (context, bounds) => _Stage(
+                                width: bounds.maxWidth,
+                                height: bounds.maxHeight,
+                                fold: motion.progress,
+                                detail: detail.value,
+                                hingeWidth: device.hingeWidth,
+                                store: store,
+                                onAction: openAction,
+                                onBack: closeAction,
+                              ),
+                            ),
+                          ),
+                          FoldSimulatorBar(
+                            progress: motion.progress,
+                            autoDevice: motion.autoDevice,
+                            onProgressChanged: motion.setProgress,
+                            onAutoDeviceChanged: (value) {
+                              motion.setAutoDevice(value);
+                              if (value) {
+                                motion.syncToDeviceWidth(
+                                  outer.maxWidth,
+                                  hasPhysicalFold: device.hasPhysicalFold,
+                                );
+                              }
+                            },
+                            onFold: motion.fold,
+                            onUnfold: motion.unfold,
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class _AmbientDecoration extends StatelessWidget {
+  const _AmbientDecoration();
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Stack(
+        children: [
+          Positioned(
+            right: -90,
+            top: 120,
+            child: Container(
+              width: 230,
+              height: 230,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFFC8FF22).withValues(alpha: 0.08),
+              ),
+            ),
+          ),
+          Positioned(
+            left: -100,
+            bottom: 120,
+            child: Container(
+              width: 240,
+              height: 240,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFF7E57C2).withValues(alpha: 0.05),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -144,24 +195,49 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final unfolded = foldProgress >= 0.5;
+    final detailOpen = detailProgress > 0.5;
+
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
       child: Row(
         children: [
           Material(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(16),
+            color: const Color(0xFF151614),
+            borderRadius: BorderRadius.circular(17),
             child: InkWell(
               onTap: !unfolded ? onBack : null,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(17),
               child: SizedBox(
-                width: 48,
-                height: 48,
-                child: Icon(
-                  !unfolded && detailProgress > 0.5
-                      ? Icons.arrow_back_rounded
-                      : Icons.screen_rotation_alt_outlined,
-                  color: Colors.white,
+                width: 50,
+                height: 50,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    AnimatedRotation(
+                      turns: unfolded ? 0.125 : 0,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeOutCubic,
+                      child: Icon(
+                        !unfolded && detailOpen
+                            ? Icons.arrow_back_rounded
+                            : Icons.screen_rotation_alt_outlined,
+                        color: Colors.white,
+                      ),
+                    ),
+                    if (!(detailOpen && !unfolded))
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          width: 7,
+                          height: 7,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFFC8FF22),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -171,46 +247,92 @@ class _Header extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'FOLDABLE MOTION LAB',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1,
-                  ),
+                const Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        'FOLDABLE MOTION LAB',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.9,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 7),
+                    Text(
+                      '01',
+                      style: TextStyle(
+                        color: Color(0xFFAAA89F),
+                        fontSize: 9,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 3),
                 Text(
                   hasPhysicalFold
-                      ? 'Physical fold detected'
+                      ? 'Physical fold detected · state stays live'
                       : unfolded
-                          ? 'Actions update the right pane'
-                          : detailProgress > 0.5
-                              ? 'Action opened full screen'
-                              : 'Actions open full screen',
+                          ? 'Navigation + live detail workspace'
+                          : detailOpen
+                              ? 'Focused workspace · state preserved'
+                              : 'Compact home · tap any action',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    color: Color(0xFF8C8B86),
-                    fontSize: 12,
+                    color: Color(0xFF85837C),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+          const SizedBox(width: 10),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 420),
+            curve: Curves.easeOutCubic,
+            padding: const EdgeInsets.fromLTRB(9, 6, 11, 6),
             decoration: BoxDecoration(
               color: unfolded ? const Color(0xFFC8FF22) : Colors.white,
               borderRadius: BorderRadius.circular(100),
-            ),
-            child: Text(
-              unfolded ? 'UNFOLDED' : 'FOLDED',
-              style: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w900,
+              border: Border.all(
+                color: unfolded
+                    ? const Color(0xFFC8FF22)
+                    : const Color(0xFFE2DFD6),
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 12,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 7,
+                  height: 7,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: unfolded ? Colors.black : const Color(0xFF8B8A84),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  unfolded ? 'UNFOLDED' : 'FOLDED',
+                  style: const TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -256,7 +378,8 @@ class _Stage extends StatelessWidget {
     final compactRotation = lerpDouble(-165 * math.pi / 180, 0, detail)!;
     final rotation = lerpDouble(compactRotation, 0, fold)!;
     final opacity = lerpDouble(detail, 1, fold)!.clamp(0.0, 1.0).toDouble();
-    final homeOpacity = (1 - (1 - fold) * detail * 0.82).clamp(0.0, 1.0).toDouble();
+    final homeOpacity =
+        (1 - (1 - fold) * detail * 0.82).clamp(0.0, 1.0).toDouble();
     final backOpacity = (detail * (1 - fold)).clamp(0.0, 1.0).toDouble();
 
     return Padding(
@@ -273,21 +396,23 @@ class _Stage extends StatelessWidget {
                 ignoring: fold < 0.5 && detail > 0.45,
                 child: Opacity(
                   opacity: homeOpacity,
-                  child: FoldHomePanel(
-                    progress: fold,
-                    selectedAction: store.selectedAction,
-                    denseNavigation: store.denseNavigation,
-                    onActionTap: onAction,
+                  child: RepaintBoundary(
+                    child: FoldHomePanel(
+                      progress: fold,
+                      selectedAction: store.selectedAction,
+                      denseNavigation: store.denseNavigation,
+                      onActionTap: onAction,
+                    ),
                   ),
                 ),
               ),
             ),
             if (store.showFoldGuide)
               Positioned(
-                left: math.max(0, leftExpanded + gap / 2 - 7),
-                top: 12,
-                bottom: 12,
-                width: 14,
+                left: math.max(0, leftExpanded + gap / 2 - 8),
+                top: 8,
+                bottom: 8,
+                width: 16,
                 child: Opacity(
                   opacity: fold,
                   child: DecoratedBox(
@@ -296,7 +421,8 @@ class _Stage extends StatelessWidget {
                       gradient: LinearGradient(
                         colors: [
                           Colors.transparent,
-                          Colors.black.withValues(alpha: 0.12 * fold),
+                          Colors.black.withValues(alpha: 0.11 * fold),
+                          const Color(0xFFC8FF22).withValues(alpha: 0.08 * fold),
                           Colors.transparent,
                         ],
                       ),
@@ -318,10 +444,12 @@ class _Stage extends StatelessWidget {
                     transform: Matrix4.identity()
                       ..setEntry(3, 2, 0.0014)
                       ..rotateY(rotation),
-                    child: FoldDetailPanel(
-                      store: store,
-                      compactBackOpacity: backOpacity,
-                      onBack: onBack,
+                    child: RepaintBoundary(
+                      child: FoldDetailPanel(
+                        store: store,
+                        compactBackOpacity: backOpacity,
+                        onBack: onBack,
+                      ),
                     ),
                   ),
                 ),
