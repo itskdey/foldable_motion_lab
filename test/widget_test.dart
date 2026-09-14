@@ -20,7 +20,10 @@ void main() {
     await tester.tap(find.text('Notes'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Notes stay exactly where you left them.'), findsOneWidget);
-    expect(find.text('New note'), findsOneWidget);
+    expect(
+      find.text('Capture it once. Keep it through every posture.'),
+      findsOneWidget,
+    );
+    expect(find.text('New'), findsOneWidget);
   });
 }
