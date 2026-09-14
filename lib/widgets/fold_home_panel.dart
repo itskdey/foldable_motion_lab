@@ -21,7 +21,6 @@ class FoldHomePanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final compact = progress < 0.5;
-    final heroHeight = lerpDouble(252, 212, progress)!;
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -29,7 +28,7 @@ class FoldHomePanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _FoldHero(progress: progress, height: heroHeight),
+          _FoldHero(progress: progress),
           SizedBox(height: lerpDouble(20, 16, progress)!),
           _ActionSection(
             compact: compact,
@@ -46,21 +45,17 @@ class FoldHomePanel extends StatelessWidget {
 }
 
 class _FoldHero extends StatelessWidget {
-  const _FoldHero({required this.progress, required this.height});
+  const _FoldHero({required this.progress});
 
   final double progress;
-  final double height;
 
   @override
   Widget build(BuildContext context) {
-    final titleSize = lerpDouble(36, 29, progress)!;
-    final limeSize = lerpDouble(102, 78, progress)!;
-    final unfolded = progress >= 0.5;
+    final height = lerpDouble(254, 230, progress)!;
 
     return Container(
       width: double.infinity,
       height: height,
-      padding: EdgeInsets.all(lerpDouble(24, 20, progress)!),
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -71,167 +66,147 @@ class _FoldHero extends StatelessWidget {
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.16),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 28,
             offset: const Offset(0, 14),
           ),
         ],
       ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: -56,
-            top: -72,
-            child: Container(
-              width: 224,
-              height: 224,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  width: 30,
-                  color: Colors.white.withValues(alpha: 0.08),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final narrow = constraints.maxWidth < 290;
+          final padding = narrow ? 18.0 : 22.0;
+          final titleSize = narrow
+              ? lerpDouble(30, 27, progress)!
+              : lerpDouble(36, 30, progress)!;
+          final limeSize = narrow ? 68.0 : lerpDouble(98, 76, progress)!;
+          final unfolded = progress >= 0.5;
+
+          return Stack(
+            children: [
+              Positioned(
+                right: -58,
+                top: -76,
+                child: Container(
+                  width: 224,
+                  height: 224,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      width: 30,
+                      color: Colors.white.withValues(alpha: 0.08),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          Positioned(
-            right: 20,
-            top: 18,
-            child: Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.04),
+              Positioned(
+                right: narrow ? 12 : 10,
+                bottom: narrow ? 14 : 10,
+                child: Transform.rotate(
+                  angle: lerpDouble(-0.16, -0.06, progress)!,
+                  child: Container(
+                    width: limeSize,
+                    height: limeSize,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFC8FF22),
+                      borderRadius: BorderRadius.circular(narrow ? 21 : 27),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFC8FF22).withValues(alpha: 0.18),
+                          blurRadius: 22,
+                          offset: const Offset(0, 9),
+                        ),
+                      ],
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      unfolded
+                          ? Icons.view_sidebar_rounded
+                          : Icons.smartphone_rounded,
+                      size: narrow ? 29 : lerpDouble(39, 32, progress)!,
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-          Positioned(
-            right: 8,
-            bottom: 10,
-            child: Transform.rotate(
-              angle: lerpDouble(-0.16, -0.06, progress)!,
-              child: Container(
-                width: limeSize,
-                height: limeSize,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFC8FF22),
-                  borderRadius: BorderRadius.circular(27),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFFC8FF22).withValues(alpha: 0.22),
-                      blurRadius: 24,
-                      offset: const Offset(0, 10),
+              Padding(
+                padding: EdgeInsets.all(padding),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: narrow ? 9 : 11,
+                              vertical: 7,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.10),
+                              borderRadius: BorderRadius.circular(100),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.08),
+                              ),
+                            ),
+                            child: Text(
+                              narrow ? 'POSTURE' : 'POSTURE AWARE',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 8,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFFC8FF22),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    Text(
+                      'One flow.\nTwo forms.',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: titleSize,
+                        height: 0.92,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 9),
+                    SizedBox(
+                      width: narrow
+                          ? constraints.maxWidth - padding * 2 - 72
+                          : constraints.maxWidth * 0.62,
+                      child: Text(
+                        unfolded
+                            ? 'Navigation stays visible while the live workspace moves beside it.'
+                            : 'Open full screen, then unfold without losing context.',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.55),
+                          fontSize: narrow ? 9 : 10,
+                          height: 1.35,
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                alignment: Alignment.center,
-                child: Icon(
-                  unfolded
-                      ? Icons.view_sidebar_rounded
-                      : Icons.smartphone_rounded,
-                  size: lerpDouble(40, 32, progress)!,
-                ),
-              ),
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 11,
-                      vertical: 7,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.10),
-                      borderRadius: BorderRadius.circular(100),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.08),
-                      ),
-                    ),
-                    child: const Text(
-                      'POSTURE AWARE',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.1,
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  _LiveDot(label: unfolded ? 'DUAL PANE' : 'COMPACT'),
-                ],
-              ),
-              const Spacer(),
-              Text(
-                'One flow.\nTwo forms.',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: titleSize,
-                  height: 0.92,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -1.6,
-                ),
-              ),
-              const SizedBox(height: 11),
-              SizedBox(
-                width: 210,
-                child: Text(
-                  unfolded
-                      ? 'Keep navigation visible while the active workspace moves beside it.'
-                      : 'Open an action full screen, then unfold without losing context.',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.58),
-                    fontSize: 11,
-                    height: 1.45,
-                  ),
-                ),
               ),
             ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LiveDot extends StatelessWidget {
-  const _LiveDot({required this.label});
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.07),
-        borderRadius: BorderRadius.circular(100),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xFFC8FF22),
-            ),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 8,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 0.6,
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -255,7 +230,7 @@ class _ActionSection extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(dense ? 7 : 9),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.92),
+        color: Colors.white.withValues(alpha: 0.94),
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
         boxShadow: [
@@ -283,6 +258,8 @@ class _ActionSection extends StatelessWidget {
                     children: [
                       Text(
                         compact ? 'Quick actions' : 'Workspace',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w900,
@@ -294,18 +271,21 @@ class _ActionSection extends StatelessWidget {
                         compact
                             ? 'Tap to open full screen'
                             : 'Tap to update the detail pane',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: Color(0xFF8C8B86),
-                          fontSize: 10,
+                          fontSize: 9,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
                 ),
+                const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 9,
+                    horizontal: 8,
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
@@ -313,12 +293,11 @@ class _ActionSection extends StatelessWidget {
                     borderRadius: BorderRadius.circular(100),
                   ),
                   child: Text(
-                    '${labActions.length} TOOLS',
+                    '${labActions.length}',
                     style: const TextStyle(
                       color: Color(0xFF696862),
                       fontSize: 8,
                       fontWeight: FontWeight.w900,
-                      letterSpacing: 0.7,
                     ),
                   ),
                 ),
@@ -369,29 +348,29 @@ class _ActionTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(21),
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: dense ? 10 : 13,
-              vertical: dense ? 9 : 12,
+              horizontal: dense ? 9 : 11,
+              vertical: dense ? 9 : 11,
             ),
             child: Row(
               children: [
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 260),
-                  width: dense ? 40 : 46,
-                  height: dense ? 40 : 46,
+                  width: dense ? 38 : 43,
+                  height: dense ? 38 : 43,
                   decoration: BoxDecoration(
                     color: selected
                         ? const Color(0xFFC8FF22)
                         : const Color(0xFFF0EEE7),
-                    borderRadius: BorderRadius.circular(dense ? 13 : 15),
+                    borderRadius: BorderRadius.circular(dense ? 12 : 14),
                   ),
                   alignment: Alignment.center,
                   child: Icon(
                     action.icon,
-                    size: dense ? 20 : 22,
+                    size: dense ? 19 : 21,
                     color: Colors.black,
                   ),
                 ),
-                SizedBox(width: dense ? 10 : 13),
+                SizedBox(width: dense ? 9 : 11),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -405,47 +384,48 @@ class _ActionTile extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: selected ? Colors.white : Colors.black,
-                                fontSize: dense ? 13 : 14,
+                                fontSize: dense ? 12 : 13,
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: -0.2,
                               ),
                             ),
                           ),
+                          const SizedBox(width: 6),
                           Text(
                             action.accentLabel,
                             style: TextStyle(
                               color: selected
                                   ? const Color(0xFFC8FF22)
                                   : const Color(0xFF85847D),
-                              fontSize: 8,
+                              fontSize: 7,
                               fontWeight: FontWeight.w900,
-                              letterSpacing: 0.7,
+                              letterSpacing: 0.5,
                             ),
                           ),
                         ],
                       ),
                       if (!dense) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 3),
                         Text(
                           action.subtitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: selected
-                                ? Colors.white.withValues(alpha: 0.52)
+                                ? Colors.white.withValues(alpha: 0.50)
                                 : const Color(0xFF99978F),
-                            fontSize: 11,
+                            fontSize: 9,
                           ),
                         ),
                       ],
                     ],
                   ),
                 ),
-                const SizedBox(width: 7),
+                const SizedBox(width: 6),
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 260),
-                  width: 30,
-                  height: 30,
+                  width: 28,
+                  height: 28,
                   decoration: BoxDecoration(
                     color: selected
                         ? Colors.white.withValues(alpha: 0.10)
@@ -455,7 +435,7 @@ class _ActionTile extends StatelessWidget {
                   alignment: Alignment.center,
                   child: Icon(
                     Icons.arrow_forward_rounded,
-                    size: 16,
+                    size: 15,
                     color: selected ? Colors.white : const Color(0xFF7D7B74),
                   ),
                 ),
@@ -478,7 +458,7 @@ class _BehaviorCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: const Color(0xFFE7E4DA),
         borderRadius: BorderRadius.circular(24),
@@ -487,35 +467,32 @@ class _BehaviorCard extends StatelessWidget {
       child: Row(
         children: [
           _MiniPosture(compact: compact),
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        compact ? 'Folded behavior' : 'Unfolded behavior',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -0.2,
-                        ),
-                      ),
-                    ),
-                    const Icon(Icons.auto_awesome_rounded, size: 16),
-                  ],
+                Text(
+                  compact ? 'Folded behavior' : 'Unfolded behavior',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.2,
+                  ),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 4),
                 Text(
                   compact
-                      ? 'Actions take over the whole screen. Unfold and the same state settles into the right pane.'
-                      : 'Navigation stays anchored on the left while the selected workspace updates on the right.',
+                      ? 'Actions fill the screen. Unfold and the same state moves right.'
+                      : 'Navigation stays left while the active workspace updates right.',
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: Color(0xFF74726B),
-                    fontSize: 11,
-                    height: 1.45,
+                    fontSize: 10,
+                    height: 1.4,
                   ),
                 ),
               ],
@@ -534,18 +511,18 @@ class _MiniPosture extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 64,
-      height: 54,
+      width: 58,
+      height: 50,
       padding: const EdgeInsets.all(7),
       decoration: BoxDecoration(
         color: const Color(0xFF161715),
-        borderRadius: BorderRadius.circular(17),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: compact
           ? Container(
               decoration: BoxDecoration(
                 color: const Color(0xFFC8FF22),
-                borderRadius: BorderRadius.circular(9),
+                borderRadius: BorderRadius.circular(8),
               ),
             )
           : Row(
@@ -555,7 +532,7 @@ class _MiniPosture extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFFC8FF22),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(7),
                     ),
                   ),
                 ),
@@ -565,7 +542,7 @@ class _MiniPosture extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.86),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(7),
                     ),
                   ),
                 ),
