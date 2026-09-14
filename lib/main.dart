@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'screens/foldable_lab_screen.dart';
+import 'screens/functional_fold_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +24,7 @@ class FoldableMotionLabApp extends StatelessWidget {
           brightness: Brightness.light,
         ),
       ),
-      home: const FoldableLabScreen(),
+      home: const FunctionalFoldScreen(),
     );
   }
 }

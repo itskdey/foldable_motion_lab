@@ -22,7 +22,7 @@ class FoldSimulatorBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.fromLTRB(18, 0, 18, 16),
-      padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+      padding: const EdgeInsets.fromLTRB(14, 11, 14, 12),
       decoration: BoxDecoration(
         color: const Color(0xFF171717),
         borderRadius: BorderRadius.circular(24),
@@ -36,34 +36,7 @@ class FoldSimulatorBar extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final compact = constraints.maxWidth < 560;
-
-          final controls = [
-            Expanded(
-              child: SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  activeTrackColor: const Color(0xFFC8FF22),
-                  inactiveTrackColor: Colors.white24,
-                  thumbColor: Colors.white,
-                  overlayColor: Colors.white12,
-                ),
-                child: Slider(
-                  value: progress,
-                  onChanged: onProgressChanged,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            _SmallButton(
-              label: 'Fold',
-              onTap: onFold,
-            ),
-            const SizedBox(width: 8),
-            _SmallButton(
-              label: 'Unfold',
-              onTap: onUnfold,
-            ),
-          ];
+          final compact = constraints.maxWidth < 540;
 
           return Column(
             mainAxisSize: MainAxisSize.min,
@@ -85,33 +58,74 @@ class FoldSimulatorBar extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Text(
-                    '${(progress * 100).round()}%',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontFeatures: [
-                        FontFeature.tabularFigures(),
-                      ],
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.09),
+                      borderRadius: BorderRadius.circular(100),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  const Text(
-                    'Auto device',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
+                    child: Text(
+                      '${(progress * 100).round()}%',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        fontFeatures: [FontFeature.tabularFigures()],
+                      ),
                     ),
-                  ),
-                  Switch.adaptive(
-                    value: autoDevice,
-                    onChanged: onAutoDeviceChanged,
                   ),
                 ],
               ),
-              if (compact) ...[
-                Row(children: controls),
-              ] else
-                Row(children: controls),
+              SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  activeTrackColor: const Color(0xFFC8FF22),
+                  inactiveTrackColor: Colors.white24,
+                  thumbColor: Colors.white,
+                  overlayColor: Colors.white12,
+                  trackHeight: 3,
+                ),
+                child: Slider(value: progress, onChanged: onProgressChanged),
+              ),
+              Row(
+                children: [
+                  if (compact) ...[
+                    Expanded(child: _Button(label: 'Fold', icon: Icons.close_fullscreen_rounded, onTap: onFold)),
+                    const SizedBox(width: 8),
+                    Expanded(child: _Button(label: 'Unfold', icon: Icons.open_in_full_rounded, onTap: onUnfold)),
+                  ] else ...[
+                    _Button(label: 'Fold', icon: Icons.close_fullscreen_rounded, onTap: onFold),
+                    const SizedBox(width: 8),
+                    _Button(label: 'Unfold', icon: Icons.open_in_full_rounded, onTap: onUnfold),
+                    const Spacer(),
+                  ],
+                  const SizedBox(width: 8),
+                  Semantics(
+                    button: true,
+                    toggled: autoDevice,
+                    label: 'Auto device',
+                    child: Tooltip(
+                      message: 'Auto device',
+                      child: Material(
+                        color: autoDevice ? const Color(0xFFC8FF22) : Colors.white10,
+                        borderRadius: BorderRadius.circular(14),
+                        child: InkWell(
+                          onTap: () => onAutoDeviceChanged(!autoDevice),
+                          borderRadius: BorderRadius.circular(14),
+                          child: SizedBox(
+                            width: 44,
+                            height: 38,
+                            child: Icon(
+                              Icons.sync_rounded,
+                              color: autoDevice ? Colors.black : Colors.white,
+                              size: 17,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           );
         },
@@ -120,35 +134,30 @@ class FoldSimulatorBar extends StatelessWidget {
   }
 }
 
-class _SmallButton extends StatelessWidget {
-  const _SmallButton({
-    required this.label,
-    required this.onTap,
-  });
-
+class _Button extends StatelessWidget {
+  const _Button({required this.label, required this.icon, required this.onTap});
   final String label;
+  final IconData icon;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white.withValues(alpha: 0.10),
+      color: Colors.white10,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 14,
-            vertical: 10,
-          ),
-          child: Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white, size: 15),
+              const SizedBox(width: 6),
+              Text(label, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800)),
+            ],
           ),
         ),
       ),
